@@ -1,7 +1,7 @@
 import db from '../../DB/pool.js';
 
 import { getUrlVars } from '../../functions/getUrlVars.js';
-import { createUser } from '../../vk_bot.js';
+import { createUser } from '../../bot/main.js';
 
 const getUser = async (fastify) => {
     fastify.post('/getUser', async (req, res) => {

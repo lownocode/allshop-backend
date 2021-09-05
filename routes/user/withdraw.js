@@ -4,7 +4,7 @@ import axios from 'axios';
 
 import { getUrlVars } from '../../functions/getUrlVars.js';
 import config from '../../config.js';
-import { vk } from '../../vk_bot.js';
+import { vk } from '../../bot/main.js';
 
 const withdraw = async (fastify) => {
     fastify.post('/withdraw', async (req, res) => {

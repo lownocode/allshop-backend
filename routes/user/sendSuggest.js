@@ -1,6 +1,6 @@
 import db from '../../DB/pool.js';
 import { getUrlVars } from '../../functions/getUrlVars.js';
-import { vk } from '../../vk_bot.js';
+import { vk } from '../../bot/main.js';
 
 const sendSuggest = async (fastify) => {
     fastify.post('/sendSuggest', async (req, res) => {

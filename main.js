@@ -4,6 +4,8 @@ import Https from 'https';
 import middie from 'middie';
 import cors from 'cors';
 
+import './bot/main.js'
+
 import { getUrlVars } from './functions/getUrlVars.js';
 import { validateAppUrl } from './functions/validateAppUrl.js';
 
