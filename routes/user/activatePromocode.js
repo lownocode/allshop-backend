@@ -1,9 +1,9 @@
 import db from '../../DB/pool.js';
-import functions from '../../functions.js';
+import { getUrlVars } from '../../functions/getUrlVars.js';
 
 const activatePromocode = async (fastify) => {
     fastify.post('/activatePromocode', async (req, res) => {
-        const params = functions.getUrlVars(req.headers['auth']);
+        const params = getUrlVars(req.headers['auth']);
         const promo = await db.query(`SELECT * FROM promocodes WHERE promo = '${req.body.promo}'`);
         if(!req.body.promo) {
             return res.send({

@@ -4,7 +4,8 @@ import Https from 'https';
 import middie from 'middie';
 import cors from 'cors';
 
-import functions from './functions.js';
+import { getUrlVars } from './functions/getUrlVars.js';
+import { validateAppUrl } from './functions/validateAppUrl.js';
 
 const prefix = '/shop';
 const port = 8880;
@@ -14,8 +15,7 @@ const https = Https.createServer({
     cert: fs.readFileSync('/etc/letsencrypt/live/localhostov.ru/fullchain.pem')
 });
 
-const fastify = Fastify
-({
+const fastify = Fastify({
     logger: true,
     https: https
 });
@@ -31,8 +31,8 @@ fastify.use((req, res, next) => {
         })
     }
 
-    const params = functions.getUrlVars(req.headers['auth']);
-    const check = functions.validateAppUrl(req.headers['auth']);
+    const params = getUrlVars(req.headers['auth']);
+    const check = validateAppUrl(req.headers['auth']);
 
     if(!check.status || !params.vk_user_id || !params || params.sign !== check.sign) {
         return res.send({

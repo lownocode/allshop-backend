@@ -1,10 +1,10 @@
 import db from '../../DB/pool.js';
-import functions from '../../functions.js';
+import { getUrlVars } from '../../functions/getUrlVars.js';
 
 const adminAddProduct = async (fastify) => {
     fastify.post('/admin.addProduct', async (req, res) => {
         const query = req.body;
-        const params = functions.getUrlVars(req.headers['auth']);
+        const params = getUrlVars(req.headers['auth']);
         const user = await db.query(`SELECT * FROM users WHERE id = ${params.vk_user_id}`);
     
         if(!user.rows[0].admin) {

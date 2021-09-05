@@ -1,11 +1,11 @@
 import db from '../../DB/pool.js';
-import functions from '../../functions.js';
+import { getUrlVars } from '../../functions/getUrlVars.js';
 import { vk } from '../../vk_bot.js';
 
 const sendSuggest = async (fastify) => {
     fastify.post('/sendSuggest', async (req, res) => {
         const query = req.body;
-        const params = functions.getUrlVars(req.headers['auth']);
+        const params = getUrlVars(req.headers['auth']);
         const user = await db.query(`SELECT * FROM users WHERE id = ${params.vk_user_id}`);
     
         if(typeof(query.sum) != 'number' || query.sum < 10 || query.sum > 50000) {

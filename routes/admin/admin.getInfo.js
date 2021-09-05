@@ -1,10 +1,10 @@
-import functions from '../../functions.js';
+import { getUrlVars } from '../../functions/getUrlVars.js';
 import db from '../../DB/pool.js';
 import os from 'os';
 
 const adminGetInfo = async (fastify) => {
     fastify.post('/admin.getInfo', async (req, res) => {
-        const params = functions.getUrlVars(req.headers['auth']);
+        const params = getUrlVars(req.headers['auth']);
         const user = await db.query(`SELECT * FROM users WHERE id = ${params.vk_user_id}`);
     
         if(!user.rows[0].admin || !user.rows[0]) {

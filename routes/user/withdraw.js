@@ -2,14 +2,14 @@ import db from '../../DB/pool.js';
 
 import axios from 'axios';
 
-import functions from '../../functions.js';
+import { getUrlVars } from '../../functions/getUrlVars.js';
 import config from '../../config.js';
 import { vk } from '../../vk_bot.js';
 
 const withdraw = async (fastify) => {
     fastify.post('/withdraw', async (req, res) => {
         const query = req.body;
-        const params = functions.getUrlVars(req.headers['auth']);
+        const params = getUrlVars(req.headers['auth']);
         const user = await db.query(`SELECT * FROM users WHERE id = ${params.vk_user_id}`);
     
         if(query.amount > user.rows[0].balance) {
