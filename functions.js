@@ -1,6 +1,9 @@
-const app_secret_key = "hgDp5dPrFpFeEe2jkSo6";
+import config from "./config.js";
 
-function validateAppUrl(url) {
+import { createHmac } from 'crypto';
+import { Buffer } from 'buffer';
+
+const validateAppUrl = (url) => {
     const query_params = url.slice(url.indexOf("?") + 1).split("&")
     .reduce((a, x) => {
         const data = x.split("=");
@@ -23,12 +26,11 @@ function validateAppUrl(url) {
         return a;
     }, []).join("&");
     
-    let sign = require("crypto")
-    .createHmac("sha256", app_secret_key)
+    let sign = createHmac("sha256", config.app_secret_key)
     .update(sign_str);
 
     sign = sign.digest("binary");
-    sign = require("buffer").Buffer.from(sign, "binary").toString("base64");
+    sign = Buffer.from(sign, "binary").toString("base64");
     sign = sign.split("+").join("-");
     sign = sign.split("/").join("_");
     sign = sign.replace(/=+$/, '');
@@ -43,7 +45,7 @@ function validateAppUrl(url) {
     return readStatus;
 };
 
-function getUrlVars(url) {
+const getUrlVars = (url) => {
     var hash;
     var myJson = {};
     var hashes = url.slice(url.indexOf('?') + 1).split('&');
@@ -55,7 +57,7 @@ function getUrlVars(url) {
     return myJson;
 };
 
-module.exports = {
+export default {
     validateAppUrl: validateAppUrl,
     getUrlVars: getUrlVars
 };

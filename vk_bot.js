@@ -1,14 +1,12 @@
-const config = require('./config.json');
-const db = require('./db');
-const axios = require('axios');
+import config from './config.js';
+import db from './DB/pool.js';
 
-const { VK, Keyboard } = require('vk-io'),
-    { HearManager } = require('@vk-io/hear'),
-    bot = new HearManager(),
-    vk = new VK({
-    token: config.vk_bot.token,
-    pollingGroupId: config.vk_bot.group_id
-});
+import axios from 'axios';
+import { VK } from 'vk-io';
+import { HearManager } from '@vk-io/hear';
+
+const bot = new HearManager();
+export const vk = new VK({ token: config.bot.token });
 
 vk.updates.on('message_new', bot.middleware);
 
@@ -27,16 +25,16 @@ bot.hear(/^(?:eval||!)\s(.*)$/i, async msg => {
     }
 });
 
-async function getDonuts() {
+const getDonuts = async () => {
     const { data } = await axios.post(`https://api.vkdonuts.ru/donates/get`, {
-        group: config.vk_bot.group_id,
+        group: config.bot.id,
         token: config.vkdonut_key,
         v: 1
     });
     return data.list;
 };
 
-async function getAdminInfo() {
+const getAdminInfo = async () => {
     const users = await db.query(`SELECT * FROM users`);
     const offers = await db.query(`SELECT * FROM offers`);
     const products = await db.query(`SELECT * FROM products`);
@@ -193,7 +191,7 @@ bot.hear(/^(?:промо||промокод)\s(.*)$/i, async msg => {
     msg.send(`Промокод активирован.\nНа ваш баланс зачислено ${promo.rows[0].sum} руб.\nТеперь ваш баланс составляет ${user.rows[0].balance} руб.`)
 });
 
-async function createUser(id) {
+export async function createUser(id) {
     const user = await vk.api.users.get({ user_ids: id });
     const newUser = await db.query(
         `INSERT INTO users 
@@ -251,9 +249,4 @@ const DB = {
         const user = await db.query(`SELECT * FROM users where id = ${user_id}`);
         return user.rows[0];
     }
-};
-
-module.exports = {
-    createUser: createUser,
-    vk: vk
 };
