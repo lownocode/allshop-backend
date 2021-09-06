@@ -25,7 +25,7 @@ const fastify = Fastify({
 await fastify.register(middie);
 fastify.use(cors());
 
-fastify.use((req, res, next) => {
+fastify.use(async (req, res, next) => {
     if(!req.headers.auth) {
         return res.send({
             success: false,
@@ -43,7 +43,7 @@ fastify.use((req, res, next) => {
         });
     }
 
-    next();
+    await next();
 });
 
 fastify.register(import('./routes/user/getUser.js'), { prefix: prefix });
