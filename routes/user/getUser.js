@@ -1,7 +1,7 @@
 import db from '../../DB/pool.js';
 
 import { getUrlVars } from '../../functions/getUrlVars.js';
-import { createUser } from '../../bot/main.js';
+import { createUser } from '../../functions/createUser.js';
 
 const getUser = async (fastify) => {
     fastify.post('/getUser', async (req, res) => {
