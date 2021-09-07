@@ -9,12 +9,12 @@ import './bot/main.js'
 import { getUrlVars } from './functions/getUrlVars.js';
 import { validateAppUrl } from './functions/validateAppUrl.js';
 
-const prefix = '/shop';
-const port = 8880;
+const domain = 'all-shop.localhostov.ru';
+const port = 444;
 
 const https = Https.createServer({
-    key: fs.readFileSync('/etc/letsencrypt/live/localhostov.ru/privkey.pem'),
-    cert: fs.readFileSync('/etc/letsencrypt/live/localhostov.ru/fullchain.pem')
+    key: fs.readFileSync('/etc/letsencrypt/live/all-shop.localhostov.ru/privkey.pem'),
+    cert: fs.readFileSync('/etc/letsencrypt/live/all-shop.localhostov.ru/fullchain.pem')
 });
 
 const fastify = Fastify({
@@ -25,7 +25,9 @@ const fastify = Fastify({
 await fastify.register(middie);
 fastify.use(cors());
 
-fastify.use(async (req, res, next) => {
+fastify.addHook('onRequest', async (req, res) => {
+    if(req.hostname !== domain + ':' + port) return;
+
     if(!req.headers.auth) {
         return res.send({
             success: false,
@@ -42,20 +44,18 @@ fastify.use(async (req, res, next) => {
             msg: 'bad request data'
         });
     }
-
-    await next();
 });
 
-fastify.register(import('./routes/user/getUser.js'), { prefix: prefix });
-fastify.register(import('./routes/user/withdraw.js'), { prefix: prefix });
-fastify.register(import('./routes/user/getProducts.js'), { prefix: prefix });
-fastify.register(import('./routes/user/sendSuggest.js'), { prefix: prefix });
-fastify.register(import('./routes/user/activatePromocode.js'), { prefix: prefix });
+fastify.register(import('./routes/user/getUser.js'));
+fastify.register(import('./routes/user/withdraw.js'));
+fastify.register(import('./routes/user/getProducts.js'));
+fastify.register(import('./routes/user/sendSuggest.js'));
+fastify.register(import('./routes/user/activatePromocode.js'));
 
-fastify.register(import('./routes/admin/admin.getOffers.js'), { prefix: prefix });
-fastify.register(import('./routes/admin/admin.getInfo.js'), { prefix: prefix });
-fastify.register(import('./routes/admin/admin.reloadBackend.js'), { prefix: prefix });
-fastify.register(import('./routes/admin/admin.addProduct.js'), { prefix: prefix });
+fastify.register(import('./routes/admin/admin.getOffers.js'));
+fastify.register(import('./routes/admin/admin.getInfo.js'));
+fastify.register(import('./routes/admin/admin.reloadBackend.js'));
+fastify.register(import('./routes/admin/admin.addProduct.js'));
 
 fastify.get('/', async (req, res) => {
     res.send(`Привет, здесь ничего нет!`)
