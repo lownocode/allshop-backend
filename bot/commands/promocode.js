@@ -20,7 +20,8 @@ export const promocodeCommand = {
                 title: 'Активация промокода',
                 date: Date.now(),
                 type: 'promocode',
-                amount: promo.rows[0].sum
+                amount: promo.rows[0].sum,
+                code: promo.rows[0].promo
             }
         ]);
         db.query(`UPDATE promocodes SET used_users = array_prepend($1, used_users), usages = usages - 1 WHERE promo = '${message.$match[1]}'`, [
@@ -29,6 +30,6 @@ export const promocodeCommand = {
             }
         ]);
         
-        return message.send(`Промокод активирован.\nНа ваш баланс зачислено ${promo.rows[0].sum} руб.\nТеперь ваш баланс составляет ${user.rows[0].balance} руб.`)
+        return message.send(`Промокод активирован.\nНа ваш баланс зачислено ${promo.rows[0].sum} руб.\nТеперь ваш баланс составляет ${user.rows[0].balance} руб.\nОсталось активаций: ${promo.rows[0].usages - 1}`)
     }
 };

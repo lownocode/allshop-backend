@@ -34,7 +34,8 @@ const activatePromocode = async (fastify) => {
                 title: 'Активация промокода',
                 date: Date.now(),
                 type: 'promocode',
-                amount: promo.rows[0].sum
+                amount: promo.rows[0].sum,
+                code: promo.rows[0].promo
             }
         ]);
         db.query(`UPDATE promocodes SET used_users = array_prepend($1, used_users), usages = usages - 1 WHERE promo = '${promo.rows[0].promo}'`, [
@@ -45,7 +46,7 @@ const activatePromocode = async (fastify) => {
     
         res.send({
             success: true,
-            msg: `Промокод активирован. На ваш баланс зачислено ${(promo.rows[0].sum).toLocaleString('ru-RU')} руб.`
+            msg: `Промокод активирован. На ваш баланс зачислено ${(promo.rows[0].sum).toLocaleString('ru-RU')} руб. Осталось активаций: ${promo.rows[0].usages - 1}`
         });
     })
 };
