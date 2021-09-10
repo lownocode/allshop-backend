@@ -13,7 +13,10 @@ const buyProduct = async (fastify) => {
 
         const product = (await db.query(`SELECT * FROM products WHERE product_id = ${check.product_id}`)).rows[0];
     
-        res.send(product);
+        res.send({
+            success: true, 
+            ...product
+        });
     })
 };
 
