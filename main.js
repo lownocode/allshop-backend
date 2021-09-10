@@ -51,6 +51,7 @@ fastify.register(import('./routes/user/withdraw.js'));
 fastify.register(import('./routes/user/getProducts.js'));
 fastify.register(import('./routes/user/sendSuggest.js'));
 fastify.register(import('./routes/user/activatePromocode.js'));
+fastify.register(import('./routes/user/buyProduct.js'));
 
 fastify.register(import('./routes/admin/admin.getOffers.js'));
 fastify.register(import('./routes/admin/admin.getInfo.js'));
