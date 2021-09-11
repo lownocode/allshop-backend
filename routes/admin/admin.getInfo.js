@@ -1,24 +1,24 @@
 import { getUrlVars } from '../../functions/getUrlVars.js';
-import db from '../../DB/pool.js';
+import { User } from '../../DB/models.js';
 import os from 'os';
 
 const adminGetInfo = async (fastify) => {
     fastify.post('/admin.getInfo', async (req, res) => {
         const params = getUrlVars(req.headers['auth']);
-        const user = await db.query(`SELECT * FROM users WHERE id = ${params.vk_user_id}`);
+        const user = await User.findOne({ where: { id: params.vk_user_id } });
     
-        if(!user.rows[0].admin || !user.rows[0]) {
+        if(!user.admin || !user) {
             return res.send({
                 success: false,
                 msg: 'you are not an administrator'
             });
         }
     
-        const users = await db.query(`SELECT id FROM users`);
+        const users = await User.findAll({ attributes: ['uid'] });
     
         res.send({
             success: true,
-            users_count: users.rows.length,
+            users_count: users.length,
             loadavg: os.loadavg(),
             mem: {
                 free: os.freemem(), 

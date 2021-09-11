@@ -1,10 +1,11 @@
+const startedAt = +new Date();
 import fs from 'fs';
 import Fastify from 'fastify';
 import Https from 'https';
 import middie from 'middie';
 import cors from 'cors';
 
-import './bot/main.js'
+import { vk } from './bot/main.js'
 
 import { getUrlVars } from './functions/getUrlVars.js';
 import { validateAppUrl } from './functions/validateAppUrl.js';
@@ -62,4 +63,10 @@ fastify.get('/', async (req, res) => {
     res.send(`Привет, здесь ничего нет!`)
 });
 
-fastify.listen(port, '0.0.0.0').catch(console.error);
+fastify.listen(port, '0.0.0.0').then(() => {
+    vk.api.messages.send({
+        chat_id: 1,
+        message: `Сервер запущен\nms: ${+new Date() - startedAt}`,
+        random_id: 0
+    });
+}).catch(console.error);

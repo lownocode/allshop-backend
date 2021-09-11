@@ -1,6 +1,8 @@
 import { vk } from "../bot/main.js";
-import db from "../DB/pool.js" ;
 import config from "../config.js";
+import { Donut, User } from "../DB/models.js";
+import sequelize from 'sequelize';
+const { Sequelize } = sequelize;
 
 import axios from "axios";
 
@@ -12,26 +14,28 @@ export const getDonuts = async () => {
     });
 
     data.list.map(async payment => {
-        const donut = (await db.query(`SELECT * FROM donuts WHERE payment_id = ${Number(payment.id)}`)).rows[0];
+        const donut = await Donut.findOne({ where: { payment_id: Number(payment.id) } });
         if(!donut) {
-            db.query(`
-            INSERT INTO donuts (user_id, payment_id, amount)
-            VALUES ($1, $2, $3)
-            `, [
-                payment.user,
-                payment.id,
-                payment.amount
-            ]);
+            const user = await User.findOne({ where: { id: payment.user } });
+            if(!user) return;
 
-            db.query(`UPDATE users SET balance = balance + ${payment.amount}, history = array_prepend($1, history) WHERE id = ${payment.user}`,
-            [
-                {
+            user.balance = user.balance + Number(payment.amount);
+            await user.save();
+            
+            User.update({
+                history: Sequelize.fn('array_prepend', JSON.stringify({
                     title: 'Пополнение баланса',
                     type: 'replenish',
                     date: Date.now(),
                     amount: payment.amount
-                }
-            ]);
+                }), Sequelize.col('history'))
+            }, { where: { id: payment.user } });
+
+            await Donut.create({
+                user_id: payment.user,
+                payment_id: payment.id,
+                amount: payment.amount
+            });
 
             return vk.api.messages.send({
                 chat_id: 1,

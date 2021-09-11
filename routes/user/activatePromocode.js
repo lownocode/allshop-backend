@@ -1,52 +1,62 @@
-import db from '../../DB/pool.js';
+import { Promocode, User } from '../../DB/models.js';
+import sequelize from 'sequelize';
 import { getUrlVars } from '../../functions/getUrlVars.js';
+
+const { Sequelize } = sequelize;
 
 const activatePromocode = async (fastify) => {
     fastify.post('/activatePromocode', async (req, res) => {
         const params = getUrlVars(req.headers['auth']);
-        const promo = await db.query(`SELECT * FROM promocodes WHERE promo = '${req.body.promo}'`);
+        const user = await User.findOne({ where: { id: params.vk_user_id } });
+
         if(!req.body.promo) {
             return res.send({
                 success: false,
                 msg: 'Один из параметров отсутствует'
             });
         }
-        else if(!promo.rows[0]) {
+        const promo = await Promocode.findOne({ where: { promo: req.body.promo } });
+        if(!promo) {
             return res.send({
                 success: false,
                 msg: 'Промокода не существует'
             });
         }
-        else if(promo.rows[0].used_users.find(x => x.id == params.vk_user_id)) {
+        else if(promo.used_users.find(x => x.id == params.vk_user_id)) {
             return res.send({
                 success: false,
                 msg: 'Вы уже активировали данный промокод'
             });
         }
-        else if(promo.rows[0].usages < 1) {
+        else if(promo.usages < 1) {
             return res.send({
                 success: false,
                 msg: 'У данного промокода закончились активации'
             });
         }
-        db.query(`UPDATE users SET balance = balance + ${promo.rows[0].sum}, history = array_prepend($1, history) WHERE id = '${params.vk_user_id}' RETURNING *`, [
-            {
+
+        user.balance = user.balance + promo.sum;
+        await user.save();
+        
+        User.update({
+            history: Sequelize.fn('array_prepend', JSON.stringify({
                 title: 'Активация промокода',
                 date: Date.now(),
                 type: 'promocode',
-                amount: promo.rows[0].sum,
-                code: promo.rows[0].promo
-            }
-        ]);
-        db.query(`UPDATE promocodes SET used_users = array_prepend($1, used_users), usages = usages - 1 WHERE promo = '${promo.rows[0].promo}'`, [
-            {
+                amount: promo.sum,
+                code: promo.promo
+            }), Sequelize.col('history'))
+        }, { where: { id: params.vk_user_id } });
+
+        Promocode.update({ 
+            used_users: Sequelize.fn('array_prepend', JSON.stringify({
                 id: params.vk_user_id
-            }
-        ]);
+            }), Sequelize.col('used_users'))
+        }, { where: { promo: promo.promo } });
     
         res.send({
             success: true,
-            msg: `Промокод активирован. На ваш баланс зачислено ${(promo.rows[0].sum).toLocaleString('ru-RU')} руб. Осталось активаций: ${promo.rows[0].usages - 1}`
+            msg: `Промокод активирован. На ваш баланс зачислено ${(promo.sum).toLocaleString('ru-RU')} руб. Осталось активаций: ${promo.usages - 1}`
         });
     })
 };

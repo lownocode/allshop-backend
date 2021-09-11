@@ -1,11 +1,11 @@
-import db from '../../DB/pool.js';
+import { Product } from "../../DB/models.js";
 
 const getProducts = async (fastify) => {
     fastify.post('/getProducts', async (req, res) => {
-        const products = await db.query(`SELECT * FROM products`);
+        const products = await Product.findAll();
         const sortProducts = new Array();
     
-        products.rows.map(product => {
+        products.map(product => {
             sortProducts.push({
                 author_id: product.author_id,
                 title: product.title,

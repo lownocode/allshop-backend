@@ -1,20 +1,20 @@
-import db from '../../DB/pool.js';
+import { User, Offer } from "../../DB/models.js";
 
 export const offersCommand = {
     RegExp: /^(?:Предложения)$/i,
     handler: async message => {
-        const user = await db.query(`SELECT admin FROM users WHERE id = ${message.senderId}`);
-        const offers = await db.query(`SELECT offer_id, author_id FROM offers`);
+        const user = await User.findOne({ where: { id: message.senderId } });
+        const offers = await Offer.findAll();
         let selectOffers = ``;
 
-        if(!user.rows[0].admin) return;
+        if(!user.admin) return;
 
-        if(!offers.rows[0]) {
+        if(offers.length === 0) {
             return message.send(`Предложений нет`)
         }
 
-        offers.rows.map((offer, index) => {
-            return selectOffers += `${index + 1}. ID: ${offer.offer_id}, USER: @id${offer.author_id}\n`;
+        offers.map((offer, index) => {
+            return selectOffers += `${index + 1}. ID: ${offer.uid}, USER: @id${offer.author_id}\n`;
         });
 
         await message.send(selectOffers);

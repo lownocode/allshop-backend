@@ -1,35 +1,44 @@
-import db from '../../DB/pool.js';
+import { User, Promocode } from "../../DB/models.js";
+import sequelize from 'sequelize';
+const { Sequelize } = sequelize;
 
 export const promocodeCommand = {
     RegExp: /^(?:промо||промокод)\s(.*)$/i,
     handler: async message => {
-        const promo = await db.query(`SELECT * FROM promocodes WHERE promo = '${message.$match[1]}'`);
+        const promo = await Promocode.findOne({ where: { promo: message.$match[1] } });
         
-        if(!promo.rows[0] || promo.error) {
+        if(!promo || promo.error) {
             return message.send(`Промокод не найден`);
         }
-        else if(promo.rows[0].used_users.find(x => x.id == message.senderId)) {
+        else if(promo.used_users.find(x => x.id == message.senderId)) {
             return message.send(`Вы уже активировали данный промокод`);
         }
-        else if(promo.rows[0].usages < 1) {
+        else if(promo.usages < 1) {
             return message.send(`У данного промокода закончились активации`)
         }
-    
-        const user = await db.query(`UPDATE users SET balance = balance + ${promo.rows[0].sum}, history = array_prepend($1, history) WHERE id = '${message.senderId}' RETURNING *`, [
-            {
+
+        const user = await User.findOne({ where: { id: message.senderId } });
+
+        user.balance = user.balance + promo.sum;
+        user.update({
+            history: Sequelize.fn('array_prepend', JSON.stringify({
                 title: 'Активация промокода',
                 date: Date.now(),
                 type: 'promocode',
-                amount: promo.rows[0].sum,
-                code: promo.rows[0].promo
-            }
-        ]);
-        db.query(`UPDATE promocodes SET used_users = array_prepend($1, used_users), usages = usages - 1 WHERE promo = '${message.$match[1]}'`, [
-            {
-                id: message.senderId
-            }
-        ]);
-        
-        return message.send(`Промокод активирован.\nНа ваш баланс зачислено ${promo.rows[0].sum} руб.\nТеперь ваш баланс составляет ${user.rows[0].balance} руб.\nОсталось активаций: ${promo.rows[0].usages - 1}`)
+                amount: promo.sum,
+                code: promo.promo
+            }), Sequelize.col('history'))
+        });
+        await user.save();
+
+        promo.usages = promo.usages - 1;
+        promo.update({
+            used_users: Sequelize.fn('array_prepend', JSON.stringify({
+                id: user.id
+            }), Sequelize.col('used_users'))
+        });
+        await promo.save();
+
+        return message.send(`Промокод активирован.\nНа ваш баланс зачислено ${promo.sum} руб.\nТеперь ваш баланс составляет ${user.balance} руб.\nОсталось активаций: ${promo.usages}`)
     }
 };

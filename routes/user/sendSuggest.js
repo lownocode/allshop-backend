@@ -1,12 +1,13 @@
-import db from '../../DB/pool.js';
+import db from '../../DB/sequelize.js';
 import { getUrlVars } from '../../functions/getUrlVars.js';
 import { vk } from '../../bot/main.js';
+import { User, Offer } from '../../DB/models.js';
 
 const sendSuggest = async (fastify) => {
     fastify.post('/sendSuggest', async (req, res) => {
         const query = req.body;
         const params = getUrlVars(req.headers['auth']);
-        const user = await db.query(`SELECT * FROM users WHERE id = ${params.vk_user_id}`);
+        const user = await User.findOne({ where: { id: params.vk_user_id } });
     
         if(typeof(query.sum) != 'number' || query.sum < 10 || query.sum > 50000) {
             return res.send({
@@ -25,27 +26,27 @@ const sendSuggest = async (fastify) => {
                 success: false, 
                 msg: 'Один из параметров отсутствует'
             });
-        } else {
-            const answerDB = await db.query(`INSERT INTO offers (author_id, demo_link, source, type, sum, description, title) VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING *`, 
-            [
-                user.rows[0].id, //author_id
-                query.demo_link,
-                query.source,
-                query.type,
-                query.sum,
-                query.description,
-                query.title
-            ]);
-            res.send({
-                success: true,
-                msg: 'Ожидайте, товар добавлен и проходит проверку'
-            });
-            vk.api.messages.send({
-                chat_id: 1,
-                random_id: 0,
-                message: `@id${params.vk_user_id} предложил скрипт, параметры:\n\n ${JSON.stringify(req.body, null, '\t')}\n\nОтвет БД:\n${JSON.stringify(answerDB.rows[0], null, '\t')}\n\nЧтобы опубликовать введите Опубликовать <<id предложения>>`
-            });
-        }
+        } 
+
+        const answerDB = await Offer.create({
+            author_id: user.id, 
+            demo_link: query.demo_link,
+            source: query.source,
+            type: query.type,
+            sum: query.sum,
+            description: query.description,
+            title: query.title
+        }, { returning: true });
+
+        res.send({
+            success: true,
+            msg: 'Ожидайте, товар добавлен и проходит проверку'
+        });
+        vk.api.messages.send({
+            chat_id: 1,
+            random_id: 0,
+            message: `@id${params.vk_user_id} предложил скрипт, параметры:\n\n ${JSON.stringify(req.body, null, '\t')}\n\nОтвет БД:\n${JSON.stringify(answerDB, null, '\t')}\n\nЧтобы опубликовать введите Опубликовать <<id предложения>>`
+        });
     })
 };
 

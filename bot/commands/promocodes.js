@@ -1,22 +1,22 @@
-import db from '../../DB/pool.js';
+import { User, Promocode } from "../../DB/models.js";
 
 export const promocodesCommand = {
     RegExp: /^(?:Промокоды)$/i,
     handler: async message => {
-        const user = await db.query(`SELECT admin FROM users WHERE id = ${message.senderId}`);
-        const promocodes = await db.query(`SELECT * FROM promocodes`);
+        const user = await User.findOne({ where: { id: message.senderId } });
+        const promocodes = await Promocode.findAll();
         let selectPromocodes = ``;
 
-        if(!user.rows[0].admin) return;
+        if(!user.admin) return;
 
-        if(!promocodes.rows[0]) {
+        if(promocodes.length === 0) {
             return message.send(`Промокодов нет`);
         }
 
-        promocodes.rows.map((promocode, index) => {
+        promocodes.map((promocode) => {
             if(promocode.usages <= 0) return;
             return selectPromocodes += 
-            `${promocode.id}. Код: ${promocode.promo} Использований: ${promocode.usages} из ${Number(promocode.usages + promocode.used_users.length)} Сумма: ${promocode.sum}\n`;
+            `${promocode.uid}. Код: ${promocode.promo} Использований: ${promocode.usages} из ${Number(promocode.usages + promocode.used_users.length)} Сумма: ${promocode.sum}\n`;
         });
 
         await message.send(selectPromocodes);

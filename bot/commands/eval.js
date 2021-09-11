@@ -1,3 +1,5 @@
+import sequelize from '../../DB/sequelize.js';
+
 export const evalCommand = {
     RegExp: /^(?:eval||!)\s(.*)$/i,
     handler: async message => {

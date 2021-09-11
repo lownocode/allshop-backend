@@ -1,5 +1,5 @@
 import { readBuyHash } from "../../functions/readBuyHash.js";
-import db from '../../DB/pool.js';
+import db from '../../DB/sequelize.js';
 
 const buyProduct = async (fastify) => {
     fastify.post('/buyProduct', async (req, res) => {
