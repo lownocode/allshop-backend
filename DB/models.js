@@ -23,22 +23,22 @@ export const Offer = sequelize.define('offers', {
     uid: { type: DataTypes.INTEGER, allowNull: false, primaryKey: true, autoIncrement: true, unique: true },
     author_id: { type: DataTypes.INTEGER, allowNull: false },
     demo_link: { type: DataTypes.STRING, defaultValue: '' },
-    source: { type: DataTypes.STRING, allowNull: false },
     type: { type: DataTypes.STRING, allowNull: false },
     sum: { type: DataTypes.INTEGER, allowNull: false },
     description: { type: DataTypes.TEXT, allowNull: false },
     title: { type: DataTypes.STRING, allowNull: false },
+    filename: { type: DataTypes.STRING }
 });
 
 export const Product = sequelize.define('products', {
     uid: { type: DataTypes.INTEGER, allowNull: false, primaryKey: true, autoIncrement: true, unique: true },
     author_id: { type: DataTypes.INTEGER, allowNull: false },
     demo_link: { type: DataTypes.STRING, defaultValue: '' },
-    source: { type: DataTypes.STRING, allowNull: false },
     type: { type: DataTypes.STRING, allowNull: false },
     sum: { type: DataTypes.INTEGER, allowNull: false },
     description: { type: DataTypes.TEXT, allowNull: false },
     title: { type: DataTypes.STRING, allowNull: false },
+    filename: { type: DataTypes.STRING }
 });
 
 export const Promocode = sequelize.define('promocodes', {
@@ -48,3 +48,12 @@ export const Promocode = sequelize.define('promocodes', {
     usages: { type: DataTypes.INTEGER, allowNull: false },
     used_users: { type: DataTypes.ARRAY(DataTypes.JSON), defaultValue: [] }
 });
+
+export const Review = sequelize.define('reviews', {
+    uid: { type: DataTypes.INTEGER, allowNull: false, primaryKey: true, autoIncrement: true, unique: true },
+    text: { type: DataTypes.TEXT, allowNull: false },
+    sender_id: { type: DataTypes.INTEGER, allowNull: false },
+    product_id: { type: DataTypes.INTEGER, allowNull: false },
+    emotion: { type: DataTypes.STRING, allowNull: false },
+    user_data: { type: DataTypes.JSON }
+})

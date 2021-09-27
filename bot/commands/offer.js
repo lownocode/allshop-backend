@@ -1,3 +1,5 @@
+import { Keyboard } from "vk-io";
+
 import { User, Offer } from "../../DB/models.js";
 
 export const offerCommand = {
@@ -17,6 +19,30 @@ export const offerCommand = {
             return message.send(`Данного предложения не существует, минимальный айди предложения - ${offers[0].uid}`)
         } 
 
-        return message.send(JSON.stringify(offer, null, '\t'));
+        return message.send(
+            JSON.stringify(offer, null, '\t'),
+            {
+                keyboard: Keyboard.keyboard([
+                    [
+                        Keyboard.callbackButton({
+                            label: 'Опубликовать',
+                            color: 'positive',
+                            payload: {
+                                command: 'publish_offer',
+                                offer_id: offer.uid
+                            }
+                        }),
+                        Keyboard.callbackButton({
+                            label: 'Отклонить',
+                            color: 'negative',
+                            payload: {
+                                command: 'destroy_offer',
+                                offer_id: offer.uid
+                            }
+                        })
+                    ]
+                ]).inline()
+            }
+        );
     }
 };

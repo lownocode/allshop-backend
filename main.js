@@ -24,6 +24,7 @@ const fastify = Fastify({
 });
 
 await fastify.register(middie);
+fastify.register(import('fastify-multipart'));
 fastify.use(cors());
 
 fastify.addHook('onRequest', async (req, res) => {
@@ -53,6 +54,8 @@ fastify.register(import('./routes/user/getProducts.js'));
 fastify.register(import('./routes/user/sendSuggest.js'));
 fastify.register(import('./routes/user/activatePromocode.js'));
 fastify.register(import('./routes/user/buyProduct.js'));
+fastify.register(import('./routes/user/addReview.js'));
+fastify.register(import('./routes/user/getReviews.js'));
 
 fastify.register(import('./routes/admin/admin.getOffers.js'));
 fastify.register(import('./routes/admin/admin.getInfo.js'));

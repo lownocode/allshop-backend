@@ -13,7 +13,8 @@ const getProducts = async (fastify) => {
                 cost: product.sum,
                 product_id: product.product_id,
                 type: product.type,
-                demo_link: product.demo_link
+                demo_link: product.demo_link,
+                product_id: product.uid
             })
         });
     

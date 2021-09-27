@@ -6,6 +6,7 @@ import { HearManager } from "@vk-io/hear";
 import config from "../config.js";
 import { getDonuts } from "../functions/getDonuts.js";
 import { dbAuth } from "../DB/sequelize.js";
+import MessageEventHandler from "./handlers/message_event.js";
 
 import * as commands from "./commands/index.js";
 
@@ -16,6 +17,7 @@ vk.updates.on("message", async (message, next) => {
     if(message.isOutbox) return;
     await next();
 });
+vk.updates.on("message_event", message => MessageEventHandler(message));
 vk.updates.on("message", hearManager.middleware);
 
 Object.values(commands).forEach(({ RegExp, handler }) => hearManager.hear(RegExp, handler));

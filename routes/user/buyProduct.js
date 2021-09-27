@@ -1,5 +1,5 @@
 import { readBuyHash } from "../../functions/readBuyHash.js";
-import db from '../../DB/sequelize.js';
+import { Product } from "../../DB/models.js";
 
 const buyProduct = async (fastify) => {
     fastify.post('/buyProduct', async (req, res) => {
@@ -11,7 +11,7 @@ const buyProduct = async (fastify) => {
             })
         }
 
-        const product = (await db.query(`SELECT * FROM products WHERE product_id = ${check.product_id}`)).rows[0];
+        const product = await Product.findOne({ where: { uid: check.product_id } });
     
         res.send({
             success: true, 
