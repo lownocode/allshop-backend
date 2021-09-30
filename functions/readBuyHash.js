@@ -8,7 +8,7 @@ export const readBuyHash = async (hash, product_id) => {
     let valid = false;
 
     products.map(params => {
-        const data = `product_id=${product_id}&author_id=${params.author_id}&cost=${params.sum}&type=${params.type}`;
+        const data = `product_id=${product_id}&author_id=${params.author_id}&cost=${params.cost}&type=${params.type}`;
         const check = createHmac('sha256', data).update(params.toString()).digest('hex');
         
         if(check === hash) {

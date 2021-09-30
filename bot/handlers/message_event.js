@@ -54,10 +54,11 @@ const handler = async (message) => {
             author_id: offer.author_id, 
             demo_link: offer.demo_link,
             type: offer.type,
-            sum: offer.sum,
+            cost: offer.cost,
             description: offer.description,
             title: offer.title,
-            filename: offer.filename
+            filename: offer.filename,
+            tags: offer.tags
         }, { returning: true });
         message.eventPayload.text = `Успешно опубликовано! Ответ БД:\n${JSON.stringify(answerDb, null, '\t')}`;
 

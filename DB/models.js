@@ -24,10 +24,11 @@ export const Offer = sequelize.define('offers', {
     author_id: { type: DataTypes.INTEGER, allowNull: false },
     demo_link: { type: DataTypes.STRING, defaultValue: '' },
     type: { type: DataTypes.STRING, allowNull: false },
-    sum: { type: DataTypes.INTEGER, allowNull: false },
+    cost: { type: DataTypes.INTEGER, allowNull: false },
     description: { type: DataTypes.TEXT, allowNull: false },
     title: { type: DataTypes.STRING, allowNull: false },
-    filename: { type: DataTypes.STRING }
+    filename: { type: DataTypes.STRING },
+    tags: { type: DataTypes.ARRAY(DataTypes.STRING) }
 });
 
 export const Product = sequelize.define('products', {
@@ -35,10 +36,11 @@ export const Product = sequelize.define('products', {
     author_id: { type: DataTypes.INTEGER, allowNull: false },
     demo_link: { type: DataTypes.STRING, defaultValue: '' },
     type: { type: DataTypes.STRING, allowNull: false },
-    sum: { type: DataTypes.INTEGER, allowNull: false },
+    cost: { type: DataTypes.INTEGER },
     description: { type: DataTypes.TEXT, allowNull: false },
     title: { type: DataTypes.STRING, allowNull: false },
-    filename: { type: DataTypes.STRING }
+    filename: { type: DataTypes.STRING },
+    tags: { type: DataTypes.ARRAY(DataTypes.STRING) }
 });
 
 export const Promocode = sequelize.define('promocodes', {
@@ -55,5 +57,5 @@ export const Review = sequelize.define('reviews', {
     sender_id: { type: DataTypes.INTEGER, allowNull: false },
     product_id: { type: DataTypes.INTEGER, allowNull: false },
     emotion: { type: DataTypes.STRING, allowNull: false },
-    user_data: { type: DataTypes.JSON }
+    user_data: { type: DataTypes.JSON, allowNull: false }
 })

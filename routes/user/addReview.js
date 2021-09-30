@@ -20,7 +20,7 @@ const addReview = async (fastify) => {
                 msg: 'Текст не должен быть пустым'
             });
         }
-        else if(req.body.text.length >= 2500) {
+        else if(req.body.text.trim().length >= 2500) {
             return res.send({
                 success: false,
                 msg: 'Длина текста не должна превышать 2 500 символов'

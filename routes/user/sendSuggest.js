@@ -12,6 +12,7 @@ const sendSuggest = async (fastify) => {
         const query = getSuggestParams(req.headers.params);
         const params = getUrlVars(req.headers['auth']);
         const user = await User.findOne({ where: { id: params.vk_user_id } });
+        const tags = query.tags.split(',');
 
         const file = await req.file();
         const fileSize = file.file._readableState.length;
@@ -43,7 +44,7 @@ const sendSuggest = async (fastify) => {
         const key = randomBytes(15).toString('hex');
         const fileName = 'id' + params.vk_user_id + '_' + key + detachExtension(file.filename);
 
-        if(Number(query.sum) < 10 || Number(query.sum) > 50000) {
+        if(Number(query.cost) < 10 || Number(query.cost) > 50000) {
             return res.send({
                 success: false, 
                 msg: 'Некорректно указана сумма'
@@ -55,7 +56,7 @@ const sendSuggest = async (fastify) => {
                 msg: 'Некорректно указано название, либо описание'
             });
         } 
-        else if(!query.type || !Number(query.sum) || !query.description || !query.title) {
+        else if(!query.type || !Number(query.cost) || !query.description || !query.title) {
             return res.send({
                 success: false, 
                 msg: 'Один из параметров отсутствует'
@@ -97,10 +98,11 @@ const sendSuggest = async (fastify) => {
                 author_id: user.id, 
                 demo_link: query.demo_link,
                 type: query.type,
-                sum: Number(query.sum),
+                cost: Number(query.cost),
                 description: query.description,
                 title: query.title,
-                filename: fileName
+                filename: fileName,
+                tags: tags
             }, { returning: true });
             
             vk.api.messages.send({
